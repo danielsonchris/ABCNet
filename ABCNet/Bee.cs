@@ -3,15 +3,15 @@ namespace ABCNet
 {
 	public class Bee
 	{
-		public enum Status {
+		public enum StatusType {
 			SCOUT = 0,
 			ONLOOKER,
 			EMPLOYEE
 		}
 
-		public Status Status { get; set; }
+		public StatusType Status { get; set; }
 
-		public Bee(Status status)
+		public Bee(StatusType status)
 		{
 			this.Status = status;
 		}

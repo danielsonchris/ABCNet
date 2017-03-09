@@ -9,7 +9,7 @@ if [ -n "$DOTNETCORE" ]; then
   dotnet restore
 
   # Running Example Test
-  dotnet run -f netcoreapp1.1 -c $CONFIGURATION --project ExampleConsole/ExampleConsole.csproj
+  dotnet run -f netcoreapp1.1 -c $CONFIGURATION --project ./ExampleConsole/ExampleConsole.csproj
 
   # Running Unit Tests
   #dotnet test -f netcoreapp1.0 -c $CONFIGURATION ./ABCNet.Test

@@ -6,11 +6,9 @@ if [ -n "$DOTNETCORE" ]; then
 
   echo Using .NET CLI
 
-  cd ExampleConsole
+  # dotnet restore
 
-  dotnet restore
-
-  dotnet build -f netcoreapp1.1 -c $CONFIGURATION ExampleConsole.csproj
+  dotnet build -f netcoreapp1.1 -c $CONFIGURATION ExampleConsole/ExampleConsole.csproj
   # Running Example Test
   # dotnet run -f netcoreapp1.1 -c $CONFIGURATION --project ./ExampleConsole/ExampleConsole.csproj
 

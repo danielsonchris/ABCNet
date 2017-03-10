@@ -20,7 +20,7 @@ matrix:
     #env: DOTNETCORE=1
 script: 
   #./dev-bin/build.sh
-  dotnet build -c Release
+  - dotnet build -f netcoreapp1.1 -c Release ExampleConsole/ExampleConsole.csproj
 notifications:
   email:
     on_failure: always

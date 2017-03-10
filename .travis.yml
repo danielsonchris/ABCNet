@@ -18,7 +18,9 @@ matrix:
     #dotnet: 1.0.0-preview2-1-003177
     #mono: none
     #env: DOTNETCORE=1
-script: ./dev-bin/build.sh
+script: 
+  #./dev-bin/build.sh
+  dotnet build -c Release
 notifications:
   email:
     on_failure: always

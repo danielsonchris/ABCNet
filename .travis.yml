@@ -1,5 +1,25 @@
 language: csharp
 solution: ABCNet.sln
+dist: trusty
+sudo: required
+mono: none
+dotnet: 1.0.0-preview2-1-003177
+
+branches:
+  only:
+  - master
+
+addons:
+  apt:
+    sources:
+    - sourceline: 'deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main'
+      key_url: 'https://apt-mo.trafficmanager.net/keys/microsoft.asc'
+    packages:
+    - dotnet-dev-1.0.1
+before_script:
+  dotnet restore
+script:
+  dotnet build
 # env:
 #   global:
 #     - CONFIGURATION=Release
@@ -18,8 +38,8 @@ solution: ABCNet.sln
 #     #dotnet: 1.0.0-preview2-1-003177
 #     #mono: none
 #     #env: DOTNETCORE=1
-script: 
-  xbuild ExampleConsole/ExampleConsole.csproj
+# script: 
+#   xbuild ExampleConsole/ExampleConsole.csproj
   #./dev-bin/build.sh
   # - dotnet build -f netcoreapp1.1 -c Release ExampleConsole/ExampleConsole.csproj
 notifications:

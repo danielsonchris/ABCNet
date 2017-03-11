@@ -1,4 +1,4 @@
-﻿using System;
+﻿
 namespace ABCNet
 {
 	public class Fitness
@@ -6,7 +6,7 @@ namespace ABCNet
 		/**
 		 * Used for creating a custom implmementation on the fitness level.
 		 */
-		public delegate double Get();
+		public delegate double Get(IFoodSource foodSource);
 
 	}
 }

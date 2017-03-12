@@ -15,38 +15,48 @@ namespace ABCNet
 
 		public List<Bee> Bees { get; } = new List<Bee>();
 
-		private const int DEFAULT_SCOUT_COUNT = 2;
-		private int scouts = DEFAULT_SCOUT_COUNT;
+		public int MaxVisits { get; set; } = 50;
+
+		public int MaxCycles { get; set; } = 10000;
+
+		private int scoutCount = 0;
+		private int employedCount = 0;
+		private int onlookerCount = 0;
 		private List<IFoodSource> foodSources;
 		private Random rand = new Random(Guid.NewGuid().GetHashCode());
-		private List<IFoodSource> bestFoodSources;
+		// private List<IFoodSource> bestFoodSources;
 
-		public Colony(int scouts, int size, List<IFoodSource> foodSources, Fitness.Get fitnessGetFunction)
+		public Colony(int size, List<IFoodSource> foodSources, Fitness.Get fitnessGetFunction)
 		{
-			this.scouts = scouts;
 			this.foodSources = foodSources;
 			//Initialization
-			//Generate the scout bees.
-			if (scouts == DEFAULT_SCOUT_COUNT) {
-				scouts = (int)(.2 * size);
-			}
-			for (int i = 0; i < scouts; i++) {
-				Bees.Add(new Bee(Bee.StatusType.SCOUT, GetUniqueRandoms(rand, foodSources.Count)));
+			//Generate our bee counts
+			scoutCount = (int)(.15 * size);
+			onlookerCount = (int)(.10 * size);
+			employedCount = (int)(.75 * size);
+
+			for (int i = 0; i < scoutCount; i++) {
+				Bees.Add(new Bee(Bee.StatusType.SCOUT, 
+					GetUniqueRandoms(rand, 0, foodSources.Count)));
 			}
 			//Employeed Bees
-			int employedBees = (int)(.65 * size);
-			for (int i = 0; i < employedBees; i++) {
-				Bees.Add(new Bee(Bee.StatusType.EMPLOYED));
+			for (int i = 0; i < employedCount; i++) {
+				Bees.Add(new Bee(Bee.StatusType.EMPLOYED, 
+					GetUniqueRandoms(rand, 0, foodSources.Count)));
 			}
 			//Onlooker Bees
-			for (int i = (scouts + employedBees); i < size; i++) {
-				Bees.Add(new Bee(Bee.StatusType.ONLOOKER));
+			for (int i = 0; i < onlookerCount; i++) {
+				Bees.Add(new Bee(Bee.StatusType.ONLOOKER,
+					GetUniqueRandoms(rand, 0, foodSources.Count)));
 			}
 		}
 
 		public List<IFoodSource> Run()
 		{
 			//Send Employeed Bees
+			Bees.Where(x => x.Status == Bee.StatusType.EMPLOYED).ToList().ForEach(x => {
+				
+			});
 			//Calculate probabilities
 			//Send Onlooker Bees 
 			//Memorize best foodSources
@@ -61,14 +71,15 @@ namespace ABCNet
 		}
 		
 		/// <summary>
-		/// Used for generating a unique list of integer values.
+		/// Used for generating a unique list of integer values starting at `start` value.
 		/// </summary>
 		/// <param name="random"></param>
-		/// <param name="count"></param>
-		/// <returns>A list ordered </returns>
-		public List<int> GetUniqueRandoms(Random random, int count)
+		/// <param name="start">The number to start counting from. </param>
+		/// <param name="count">Total number of elements to put in array.</param>
+		/// <returns>A list of unique integers randomly sorted.</returns>
+		public List<int> GetUniqueRandoms(Random random, int start, int count)
 		{
-			var list = Enumerable.Range(0, count).ToList();
+			var list = Enumerable.Range(start, count).ToList();
 			list.Sort((x, y) => random.Next(-1, 1));
 			return list;
 		}

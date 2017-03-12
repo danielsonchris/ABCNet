@@ -1,5 +1,10 @@
+using System.Collections.Generic;
 
-public interface IFoodSource
+public abstract class IFoodSource
 {
+    public List<object> Centroids { get; set; }
 
+    public int TrialsCount { get; set; }
+
+    public double FitnessValue { get; set; }
 }

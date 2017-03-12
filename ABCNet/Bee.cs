@@ -1,5 +1,4 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ABCNet
 {
@@ -10,16 +9,13 @@ namespace ABCNet
 			ONLOOKER,
 			EMPLOYED
 		}
-
 		public List<IFoodSource> MemorizedSolution = new List<IFoodSource>();
-
 		public StatusType Status { get; set; }
-
+		private List<int> RandomSolution;
 		public Bee(StatusType status)
 		{
 			this.Status = status;
 		}
-		private List<int> RandomSolution;
 		public Bee(StatusType status, List<int> randomSolution) {
 			RandomSolution = randomSolution;
 		}

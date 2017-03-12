@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ABCNet
 {
@@ -18,21 +19,19 @@ namespace ABCNet
 		private int scouts = DEFAULT_SCOUT_COUNT;
 		private List<IFoodSource> foodSources;
 		private Random rand = new Random(Guid.NewGuid().GetHashCode());
+		private List<IFoodSource> bestFoodSources;
 
 		public Colony(int scouts, int size, List<IFoodSource> foodSources, Fitness.Get fitnessGetFunction)
 		{
 			this.scouts = scouts;
 			this.foodSources = foodSources;
 			//Initialization
-			//  generate random solution array
-			List<int> offsetSolution = GetUniqueRandoms(rand, foodSources.Count);
-
 			//Generate the scout bees.
 			if (scouts == DEFAULT_SCOUT_COUNT) {
 				scouts = (int)(.2 * size);
 			}
 			for (int i = 0; i < scouts; i++) {
-				Bees.Add(new Bee(Bee.StatusType.SCOUT));
+				Bees.Add(new Bee(Bee.StatusType.SCOUT, GetUniqueRandoms(rand, foodSources.Count)));
 			}
 			//Employeed Bees
 			int employedBees = (int)(.65 * size);
@@ -45,25 +44,33 @@ namespace ABCNet
 			}
 		}
 
-		public void Run()
+		public List<IFoodSource> Run()
 		{
-			
+			//Send Employeed Bees
+			//Calculate probabilities
+			//Send Onlooker Bees 
+			//Memorize best foodSources
+			//Send Scouts 
+			return null;
 		}
 
-		private List<int> GetUniqueRandoms(Random random, int count)
+		public List<T> Run<T>() {
+			var list = new List<T>();
+
+			return list;
+		}
+		
+		/// <summary>
+		/// Used for generating a unique list of integer values.
+		/// </summary>
+		/// <param name="random"></param>
+		/// <param name="count"></param>
+		/// <returns>A list ordered </returns>
+		public List<int> GetUniqueRandoms(Random random, int count)
 		{
-			List<int> result = new List<int>(count);
-			HashSet<int> set = new HashSet<int>();
-			int i = 0;
-			while (i++ < count)
-  			{
-    			int num;
-				do {
-					num = random.Next();
-				} while (!set.Add(num));
-				result.Add(num);
-			}
-			return result;
+			var list = Enumerable.Range(0, count).ToList();
+			list.Sort((x, y) => random.Next(-1, 1));
+			return list;
 		}
 	}
 }

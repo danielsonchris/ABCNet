@@ -1,4 +1,4 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
 
 namespace ABCNet
@@ -18,6 +18,10 @@ namespace ABCNet
 		public Bee(StatusType status)
 		{
 			this.Status = status;
+		}
+		private List<int> RandomSolution;
+		public Bee(StatusType status, List<int> randomSolution) {
+			RandomSolution = randomSolution;
 		}
 	}
 }

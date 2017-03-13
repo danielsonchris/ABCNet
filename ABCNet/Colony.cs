@@ -22,11 +22,11 @@ namespace ABCNet
 		private int scoutCount = 0;
 		private int employedCount = 0;
 		private int onlookerCount = 0;
-		private List<IFoodSource> foodSources;
+		private List<global::FoodSource> foodSources;
 		private Random rand = new Random(Guid.NewGuid().GetHashCode());
 		// private List<IFoodSource> bestFoodSources;
 
-		public Colony(int size, List<IFoodSource> foodSources, Fitness.Get fitnessGetFunction)
+		public Colony(int size, List<global::FoodSource> foodSources, Fitness.Get fitnessGetFunction)
 		{
 			this.foodSources = foodSources;
 			//Initialization
@@ -51,7 +51,7 @@ namespace ABCNet
 			}
 		}
 
-		public List<IFoodSource> Run()
+		public List<global::FoodSource> Run()
 		{
 			//Send Employeed Bees
 			Bees.Where(x => x.Status == Bee.StatusType.EMPLOYED).ToList().ForEach(x => {

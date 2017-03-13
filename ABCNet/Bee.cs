@@ -9,7 +9,7 @@ namespace ABCNet
 			ONLOOKER,
 			EMPLOYED
 		}
-		public List<global::FoodSource> MemorizedSolution = new List<global::FoodSource>();
+		public List<FoodSource> MemorizedSolution = new List<FoodSource>();
 		public StatusType Status { get; set; }
 		private List<int> RandomSolution;
 		public Bee(StatusType status)

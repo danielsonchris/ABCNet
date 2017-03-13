@@ -6,6 +6,6 @@ namespace ABCNet
 		/**
 		 * Used for creating a custom implmementation of the fitness level.
 		 */
-		public delegate double Get(global::FoodSource foodSource, Bee bee);
+		public delegate double Get(FoodSource foodSource, Bee bee);
 	}
 }

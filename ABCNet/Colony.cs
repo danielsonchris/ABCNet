@@ -23,31 +23,33 @@ namespace ABCNet
 		private int employedCount = 0;
 		private int onlookerCount = 0;
 		private List<FoodSource> foodSources;
-		private Random rand = new Random(Guid.NewGuid().GetHashCode());
+		// private Random rand = new Random(Guid.NewGuid().GetHashCode());
 		// private List<IFoodSource> bestFoodSources;
+
+		public Random Rand { get; set; } = new Random(Guid.NewGuid().GetHashCode());
 
 		public Colony(int size, List<FoodSource> foodSources, Fitness.Get fitnessGetFunction)
 		{
 			this.foodSources = foodSources;
 			//Initialization
-			//Generate our bee counts
+			//Generate our bee counts and supply a random memory set for each bee.
 			scoutCount = (int)(.15 * size);
 			onlookerCount = (int)(.10 * size);
-			employedCount = (int)(.75 * size);
+			employedCount = size - (scoutCount + onlookerCount);
 
 			for (int i = 0; i < scoutCount; i++) {
 				Bees.Add(new Bee(Bee.StatusType.SCOUT, 
-					GetUniqueRandoms(rand, 0, foodSources.Count)));
+					GetUniqueRandoms(Rand, 0, foodSources.Count)));
 			}
 			//Employeed Bees
 			for (int i = 0; i < employedCount; i++) {
 				Bees.Add(new Bee(Bee.StatusType.EMPLOYED, 
-					GetUniqueRandoms(rand, 0, foodSources.Count)));
+					GetUniqueRandoms(Rand, 0, foodSources.Count)));
 			}
 			//Onlooker Bees
 			for (int i = 0; i < onlookerCount; i++) {
 				Bees.Add(new Bee(Bee.StatusType.ONLOOKER,
-					GetUniqueRandoms(rand, 0, foodSources.Count)));
+					GetUniqueRandoms(Rand, 0, foodSources.Count)));
 			}
 		}
 
@@ -67,6 +69,16 @@ namespace ABCNet
 		public List<T> Run<T>() {
 			var list = new List<T>();
 
+			/*
+Initial food sources are produced for all employed bees
+REPEAT
+Each employed bee goes to a food source in her memory and determines a neighbour source, then evaluates its nectar amount and dances in the hive
+Each onlooker watches the dance of employed bees and chooses one of their sources depending on the dances, and then goes to that source. After choosing a neighbour around that, she evaluates its nectar amount.
+Abandoned food sources are determined and are replaced with the new food sources discovered by scouts.
+The best food source found so far is registered.
+UNTIL (requirements are met)
+ */
+
 			return list;
 		}
 		
@@ -81,6 +93,8 @@ namespace ABCNet
 		{
 			var list = Enumerable.Range(start, count).ToList();
 			list.Sort((x, y) => random.Next(-1, 1));
+			list.ForEach(y => Console.Write(string.Format("{0},",y)));
+			Console.WriteLine("");
 			return list;
 		}
 	}

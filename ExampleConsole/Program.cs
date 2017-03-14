@@ -1,4 +1,6 @@
 ﻿using System;
+using ABCNet;
+using System.Collections.Generic;
 
 namespace ExampleConsole
 {
@@ -6,7 +8,15 @@ namespace ExampleConsole
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Random rand = new Random(Guid.NewGuid().GetHashCode());
+
+            List<FoodSource> foodSources = new List<FoodSource>();
+            for (int i=0; i < 10; i++) {
+                foodSources.Add(new FoodSource(FoodSourceLocation.GenerateRandom(rand)));
+            }
+
+            Colony colony = new Colony(20, foodSources, null);
+
             return;
         }
     }

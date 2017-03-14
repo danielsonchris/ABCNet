@@ -26,11 +26,14 @@ namespace ABCNet
 		// private Random rand = new Random(Guid.NewGuid().GetHashCode());
 		// private List<IFoodSource> bestFoodSources;
 
+		private Fitness.Get fitnessGetFunction;
+
 		public Random Rand { get; set; } = new Random(Guid.NewGuid().GetHashCode());
 
 		public Colony(int size, List<FoodSource> foodSources, Fitness.Get fitnessGetFunction)
 		{
 			this.foodSources = foodSources;
+			this.fitnessGetFunction = fitnessGetFunction;
 			//Initialization
 			//Generate our bee counts and supply a random memory set for each bee.
 			scoutCount = (int)(.15 * size);
@@ -55,10 +58,33 @@ namespace ABCNet
 
 		public List<FoodSource> Run()
 		{
+			List<FoodSource> employedBeeSelection = new List<FoodSource>();
 			//Send Employeed Bees
-			Bees.Where(x => x.Status == Bee.StatusType.EMPLOYED).ToList().ForEach(x => {
-				
+			Bees.Where(x => x.Status == Bee.StatusType.EMPLOYED).ToList().ForEach(bee => {
+				var primaryFoodSource = bee.MemorizedSolution[0];
+				var primaryFoodSourceCoordinate = bee.MemorizedSolution[0].Location.GeoCoordinate;
+				double distanceLocation = double.MaxValue;
+				FoodSource neighbor = null;
+				for (int i=1; i < bee.MemorizedSolution.Count; i++) {
+					//locate the nearest neighbor. 
+					double distance = bee.MemorizedSolution[i].Location.GeoCoordinate.GetDistanceTo(primaryFoodSourceCoordinate);
+					if (distance < distanceLocation) {
+						neighbor = bee.MemorizedSolution[i];
+					}
+				}
+				primaryFoodSource.FitnessValue = this.fitnessGetFunction(primaryFoodSource, bee);
+				if (neighbor == null) return; // nothing to do.
+				//Each employed bee goes to a food source in her memory and determines a neighbour source, 
+				//then evaluates its nectar amount and dances in the hive
+				neighbor.FitnessValue = this.fitnessGetFunction(neighbor, bee);
+
 			});
+
+			//Each onlooker watches the dance of employed bees and chooses one of their sources depending on the dances, 
+			//and then goes to that source. After choosing a neighbour around that, she evaluates its nectar amount.
+			
+			//Abandoned food sources are determined and are replaced with the new food sources discovered by scouts.
+
 			//Calculate probabilities
 			//Send Onlooker Bees 
 			//Memorize best foodSources

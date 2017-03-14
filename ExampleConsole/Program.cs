@@ -6,6 +6,11 @@ namespace ExampleConsole
 {
     class Program
     {
+        public double FitnessCheck(FoodSource foodSource, Bee bee) {
+            var geo = foodSource.Location.GeoCoordinate;
+            Console.WriteLine(string.Format("{0:0.##}, {1:0.##}", geo.Latitude, geo.Longitude));
+            return 0d;
+        }
         static void Main(string[] args)
         {
             Random rand = new Random(Guid.NewGuid().GetHashCode());
@@ -15,7 +20,11 @@ namespace ExampleConsole
                 foodSources.Add(new FoodSource(FoodSourceLocation.GenerateRandom(rand)));
             }
 
-            Colony colony = new Colony(20, foodSources, null);
+            Program p = new Program();
+
+            Colony colony = new Colony(20, foodSources, p.FitnessCheck);
+
+            colony.Run();
 
             return;
         }

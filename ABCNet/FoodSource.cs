@@ -1,5 +1,6 @@
 using System;
 using GeoCoordinatePortable;
+using System.Collections.Generic;
 
 namespace ABCNet
 {
@@ -24,5 +25,14 @@ namespace ABCNet
         public FoodSourceLocation Location { get; set; }
         public int TrialsCount { get; set; }
         public double FitnessValue { get; set; }
+        public bool IsAbandoned { get; set; }
+    }
+
+    public class FoodSourceComparer : IComparer<FoodSource> {
+        public int Compare(FoodSource x, FoodSource y) {
+            if (x.FitnessValue < y.FitnessValue) return -1; //y is greater
+            else if (x.FitnessValue > y.FitnessValue) return 1; //x is greater
+            else return 0; //equal
+        }
     }
 }

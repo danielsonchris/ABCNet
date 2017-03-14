@@ -59,37 +59,48 @@ namespace ABCNet
 		public List<FoodSource> Run()
 		{
 			List<FoodSource> employedBeeSelection = new List<FoodSource>();
+			List<FoodSource> onlookerBeeSelection = new List<FoodSource>();
 			//Send Employeed Bees
 			Bees.Where(x => x.Status == Bee.StatusType.EMPLOYED).ToList().ForEach(bee => {
 				var primaryFoodSource = bee.MemorizedSolution[0];
-				var primaryFoodSourceCoordinate = bee.MemorizedSolution[0].Location.GeoCoordinate;
-				double distanceLocation = double.MaxValue;
-				FoodSource neighbor = null;
-				for (int i=1; i < bee.MemorizedSolution.Count; i++) {
-					//locate the nearest neighbor. 
-					double distance = bee.MemorizedSolution[i].Location.GeoCoordinate.GetDistanceTo(primaryFoodSourceCoordinate);
-					if (distance < distanceLocation) {
-						neighbor = bee.MemorizedSolution[i];
-					}
-				}
-				primaryFoodSource.FitnessValue = this.fitnessGetFunction(primaryFoodSource, bee);
-				if (neighbor == null) return; // nothing to do.
-				//Each employed bee goes to a food source in her memory and determines a neighbour source, 
-				//then evaluates its nectar amount and dances in the hive
-				neighbor.FitnessValue = this.fitnessGetFunction(neighbor, bee);
-
+				PerformBeePrimaryAndNeighborFitness(primaryFoodSource, bee, employedBeeSelection);
 			});
 
+			employedBeeSelection.Sort(new FoodSourceComparer());
+			int topValue = (int)(employedBeeSelection.Count * .3d); //top 30% dances win for health.
 			//Each onlooker watches the dance of employed bees and chooses one of their sources depending on the dances, 
 			//and then goes to that source. After choosing a neighbour around that, she evaluates its nectar amount.
-			
+			Bees.Where(x => x.Status == Bee.StatusType.ONLOOKER).ToList().ForEach(bee => {
+				int nextTest = Rand.Next(0, topValue);
+				var primaryFoodSource = employedBeeSelection[nextTest];
+				PerformBeePrimaryAndNeighborFitness(primaryFoodSource, bee, onlookerBeeSelection);
+			});
 			//Abandoned food sources are determined and are replaced with the new food sources discovered by scouts.
 
-			//Calculate probabilities
-			//Send Onlooker Bees 
-			//Memorize best foodSources
-			//Send Scouts 
 			return null;
+		}
+
+		private void PerformBeePrimaryAndNeighborFitness(FoodSource primaryFoodSource, Bee bee, List<FoodSource> foodSourceSelection) {
+			var primaryFoodSourceCoordinate = bee.MemorizedSolution[0].Location.GeoCoordinate;
+			double distanceLocation = double.MaxValue;
+			FoodSource neighbor = null;
+			for (int i=1; i < bee.MemorizedSolution.Count; i++) {
+				//locate the nearest neighbor.
+				double distance = bee.MemorizedSolution[i].Location.GeoCoordinate.GetDistanceTo(primaryFoodSourceCoordinate);
+				if (distance < distanceLocation) {
+					neighbor = bee.MemorizedSolution[i];
+				}
+			}
+			//Each employed bee goes to a food source in her memory and determines a neighbour source, 
+			//then evaluates its nectar amount and dances in the hive
+			primaryFoodSource.FitnessValue = this.fitnessGetFunction(primaryFoodSource, bee);
+			primaryFoodSource.TrialsCount++;
+			foodSourceSelection.Add(primaryFoodSource);
+			if (neighbor != null) {
+				neighbor.FitnessValue = this.fitnessGetFunction(neighbor, bee);
+				neighbor.TrialsCount++;
+				foodSourceSelection.Add(neighbor);
+			}
 		}
 
 		public List<T> Run<T>() {

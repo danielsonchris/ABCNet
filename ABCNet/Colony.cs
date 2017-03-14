@@ -23,8 +23,6 @@ namespace ABCNet
 		private int employedCount = 0;
 		private int onlookerCount = 0;
 		private List<FoodSource> foodSources;
-		// private Random rand = new Random(Guid.NewGuid().GetHashCode());
-		// private List<IFoodSource> bestFoodSources;
 
 		private Fitness.Get fitnessGetFunction;
 
@@ -56,6 +54,10 @@ namespace ABCNet
 			}
 		}
 
+		/// <summary>
+		/// Performs the colony search for the optimal food source.
+		/// </summary>
+		/// <returns>A List of FoodSources that have been sorted by the fittest at the top.</returns>
 		public List<FoodSource> Run()
 		{
 			List<FoodSource> employedBeeSelection = new List<FoodSource>();
@@ -65,7 +67,6 @@ namespace ABCNet
 				var primaryFoodSource = bee.MemorizedSolution[0];
 				PerformBeePrimaryAndNeighborFitness(primaryFoodSource, bee, employedBeeSelection);
 			});
-
 			employedBeeSelection.Sort(new FoodSourceComparer());
 			int topValue = (int)(employedBeeSelection.Count * .3d); //top 30% dances win for health.
 			//Each onlooker watches the dance of employed bees and chooses one of their sources depending on the dances, 
@@ -77,7 +78,11 @@ namespace ABCNet
 			});
 			//Abandoned food sources are determined and are replaced with the new food sources discovered by scouts.
 
-			return null;
+			foodSources.Sort(new FoodSourceComparer());
+			//Reset the foodsources where the trial count has gone > MaxVisits.
+			foodSources.Where(x => x.TrialsCount > MaxVisits).ToList().ForEach(x => { x.TrialsCount = 0; x.IsAbandoned = false; });
+
+			return foodSources;
 		}
 
 		private void PerformBeePrimaryAndNeighborFitness(FoodSource primaryFoodSource, Bee bee, List<FoodSource> foodSourceSelection) {
@@ -85,7 +90,8 @@ namespace ABCNet
 			double distanceLocation = double.MaxValue;
 			FoodSource neighbor = null;
 			for (int i=1; i < bee.MemorizedSolution.Count; i++) {
-				//locate the nearest neighbor.
+				//locate the nearest neighbor that is not abandoned.
+				if (bee.MemorizedSolution[i].IsAbandoned) continue;
 				double distance = bee.MemorizedSolution[i].Location.GeoCoordinate.GetDistanceTo(primaryFoodSourceCoordinate);
 				if (distance < distanceLocation) {
 					neighbor = bee.MemorizedSolution[i];
@@ -94,17 +100,16 @@ namespace ABCNet
 			//Each employed bee goes to a food source in her memory and determines a neighbour source, 
 			//then evaluates its nectar amount and dances in the hive
 			primaryFoodSource.FitnessValue = this.fitnessGetFunction(primaryFoodSource, bee);
+			if (primaryFoodSource.FitnessValue <= 0) primaryFoodSource.IsAbandoned = true;
 			primaryFoodSource.TrialsCount++;
 			foodSourceSelection.Add(primaryFoodSource);
 			if (neighbor != null) {
 				neighbor.FitnessValue = this.fitnessGetFunction(neighbor, bee);
+				if (neighbor.FitnessValue <= 0) neighbor.IsAbandoned = true;
 				neighbor.TrialsCount++;
 				foodSourceSelection.Add(neighbor);
 			}
 		}
-
-		public List<T> Run<T>() {
-			var list = new List<T>();
 
 			/*
 Initial food sources are produced for all employed bees
@@ -115,9 +120,6 @@ Abandoned food sources are determined and are replaced with the new food sources
 The best food source found so far is registered.
 UNTIL (requirements are met)
  */
-
-			return list;
-		}
 		
 		/// <summary>
 		/// Used for generating a unique list of integer values starting at `start` value.

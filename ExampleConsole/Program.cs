@@ -24,8 +24,14 @@ namespace ExampleConsole
 
             Colony colony = new Colony(20, foodSources, p.FitnessCheck);
 
-            colony.Run();
+            var fittestSources = colony.Run();
+            fittestSources.ForEach(x => {
+                Console.WriteLine(x.FitnessValue);
+            });
 
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Press enter to exit.");
+            // Console.ReadLine();
             return;
         }
     }

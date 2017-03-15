@@ -9,14 +9,10 @@ namespace ABCNet
 			ONLOOKER,
 			EMPLOYED
 		}
-		public List<FoodSource> MemorizedSolution = new List<FoodSource>();
 		public StatusType Status { get; set; }
-		private List<int> RandomSolution;
-		public Bee(StatusType status)
-		{
-			this.Status = status;
-		}
+		public List<int> RandomSolution;
 		public Bee(StatusType status, List<int> randomSolution) {
+			Status = status;
 			RandomSolution = randomSolution;
 		}
 	}

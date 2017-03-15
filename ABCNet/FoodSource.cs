@@ -26,6 +26,13 @@ namespace ABCNet
         public int TrialsCount { get; set; }
         public double FitnessValue { get; set; }
         public bool IsAbandoned { get; set; }
+
+		private string uniqueName = Guid.NewGuid().ToString("N");
+
+		public override string ToString()
+		{
+			return uniqueName;
+		}
     }
 
     public class FoodSourceComparer : IComparer<FoodSource> {

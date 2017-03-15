@@ -64,7 +64,7 @@ namespace ABCNet
 			List<FoodSource> onlookerBeeSelection = new List<FoodSource>();
 			//Send Employeed Bees
 			Bees.Where(x => x.Status == Bee.StatusType.EMPLOYED).ToList().ForEach(bee => {
-				var primaryFoodSource = bee.MemorizedSolution[0];
+				var primaryFoodSource = foodSources[bee.RandomSolution[0]];
 				PerformBeePrimaryAndNeighborFitness(primaryFoodSource, bee, employedBeeSelection);
 			});
 			employedBeeSelection.Sort(new FoodSourceComparer());
@@ -86,15 +86,17 @@ namespace ABCNet
 		}
 
 		private void PerformBeePrimaryAndNeighborFitness(FoodSource primaryFoodSource, Bee bee, List<FoodSource> foodSourceSelection) {
-			var primaryFoodSourceCoordinate = bee.MemorizedSolution[0].Location.GeoCoordinate;
+			var primaryFoodSourceCoordinate = primaryFoodSource.Location.GeoCoordinate;
 			double distanceLocation = double.MaxValue;
 			FoodSource neighbor = null;
-			for (int i=1; i < bee.MemorizedSolution.Count; i++) {
-				//locate the nearest neighbor that is not abandoned.
-				if (bee.MemorizedSolution[i].IsAbandoned) continue;
-				double distance = bee.MemorizedSolution[i].Location.GeoCoordinate.GetDistanceTo(primaryFoodSourceCoordinate);
+			foreach(var source in foodSources) {
+				//Ignore if the current source is the same
+				if (source.ToString() == primaryFoodSource.ToString()) continue;
+				//Locate the nearest neighbor that is not abandoned.
+				if (source.IsAbandoned) continue;
+				double distance = source.Location.GeoCoordinate.GetDistanceTo(primaryFoodSourceCoordinate);
 				if (distance < distanceLocation) {
-					neighbor = bee.MemorizedSolution[i];
+					neighbor = source;
 				}
 			}
 			//Each employed bee goes to a food source in her memory and determines a neighbour source, 

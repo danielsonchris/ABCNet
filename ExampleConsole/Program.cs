@@ -20,7 +20,6 @@ namespace ExampleConsole
             for (int i=0; i < 10; i++) {
 				foodSources.Add(new FoodSource(FoodSourceLocation.GenerateRandom(random)));
             }
-
 			for (int i = 0; i < 50; i++)
 			{
 				Colony colony = new Colony(100, foodSources, FitnessCheck);

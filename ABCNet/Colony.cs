@@ -9,9 +9,9 @@ namespace ABCNet
 	/// </summary>
 	public class Colony
 	{
-		public double AverageFitness { get; set; }
+		//public double AverageFitness { get; set; }
 
-		public int Dimensions { get; set; } = 2;
+		//public int Dimensions { get; set; } = 2;
 
 		public List<Bee> Bees { get; } = new List<Bee>();
 
@@ -23,7 +23,6 @@ namespace ABCNet
 		private int employedCount = 0;
 		private int onlookerCount = 0;
 		private List<FoodSource> foodSources;
-
 		private Fitness.Get fitnessGetFunction;
 
 		public Random Rand { get; set; } = new Random(Guid.NewGuid().GetHashCode());
@@ -76,16 +75,22 @@ namespace ABCNet
 				var primaryFoodSource = employedBeeSelection[nextTest];
 				PerformBeePrimaryAndNeighborFitness(primaryFoodSource, bee, onlookerBeeSelection);
 			});
-			//Abandoned food sources are determined and are replaced with the new food sources discovered by scouts.
 
+			//Abandoned food sources are determined and are replaced with the new food sources discovered by scouts.
 			foodSources.Sort(new FoodSourceComparer());
 			//Reset the foodsources where the trial count has gone > MaxVisits.
-			foodSources.Where(x => x.TrialsCount > MaxVisits).ToList().ForEach(x => { x.TrialsCount = 0; x.IsAbandoned = false; });
+			foodSources.Where(x => x.TrialsCount > MaxVisits).ToList().ForEach(x => { 
+				x.TrialsCount = 0; 
+				x.IsAbandoned = false; 
+			});
+
+			//have the scouts attempt a query against any new sites to seed them into the future state.
 
 			return foodSources;
 		}
 
-		private void PerformBeePrimaryAndNeighborFitness(FoodSource primaryFoodSource, Bee bee, List<FoodSource> foodSourceSelection) {
+		private void PerformBeePrimaryAndNeighborFitness(FoodSource primaryFoodSource, 
+		                                                 Bee bee, List<FoodSource> foodSourceSelection) {
 			var primaryFoodSourceCoordinate = primaryFoodSource.Location.GeoCoordinate;
 			double distanceLocation = double.MaxValue;
 			FoodSource neighbor = null;
@@ -133,9 +138,9 @@ UNTIL (requirements are met)
 		public List<int> GetUniqueRandoms(Random random, int start, int count)
 		{
 			var list = Enumerable.Range(start, count).ToList();
-			list.Sort((x, y) => random.Next(-1, 1));
-			list.ForEach(y => Console.Write(string.Format("{0},",y)));
-			Console.WriteLine("");
+			list.Sort((x, y) => random.Next(-1, 1)); //assign a random location of the unique value.
+			//list.ForEach(y => Console.Write(string.Format("{0},",y)));
+			//Console.WriteLine("");
 			return list;
 		}
 	}

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>LogVine.ABCNet</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>danielsonchris</authors>
+    <owners>danielsonchris</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>An extensible Artificial Bee Colony .Net Library.  https://github.com/danielsonchris/ABCNet</description>
+    <releaseNotes>Initial release.</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>Artifical Simulated Bee Colony Swarm Algorithm</tags>
+  </metadata>
+</package>

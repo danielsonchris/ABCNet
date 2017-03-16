@@ -5,6 +5,10 @@
   </ItemGroup>
   <PropertyGroup>
     <TargetFramework>netstandard1.4</TargetFramework>
+    <ReleaseVersion>1.0</ReleaseVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType></DebugType>
+  </PropertyGroup>
 </Project>

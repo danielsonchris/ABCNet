@@ -85,6 +85,10 @@ namespace ABCNet
 			});
 
 			//have the scouts attempt a query against any new sites to seed them into the future state.
+			Bees.Where(x => x.Status == Bee.StatusType.SCOUT).ToList().ForEach(bee =>
+			{
+
+			});
 
 			return foodSources;
 		}

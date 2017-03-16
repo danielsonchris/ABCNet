@@ -3,6 +3,8 @@ An extensible Artificial Bee Colony .Net Library.  Initial usage was for a distr
 
 A parent process dynamically acted as the hive entity and from that vantage point healthy foraging resources were selected for processing long running scheduled items or event driven tasks.
 
+[Available from Nuget](https://www.nuget.org/packages/ABCNet)
+
 # Simple Example
 ```csharp
 using ABCNet;

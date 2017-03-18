@@ -16,7 +16,7 @@ public static double FitnessCheck(FoodSource foodSource, Bee bee) {
 //snip...
 var random = new Random();
 List<FoodSource> foodSources = new List<FoodSource>();
-for (int i=0; i < 10; i++)
+for (int i = 0; i < 10; i++)
     foodSources.Add(new FoodSource(FoodSourceLocation.GenerateRandom(random)));
 Colony colony = new Colony(100, foodSources, FitnessCheck);
 var fittestSources = colony.Run();
@@ -40,7 +40,7 @@ class Program
     static void Main(string[] args)
     {
         List<FoodSource> foodSources = new List<FoodSource>();
-        for (int i=0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             foodSources.Add(new FoodSource(FoodSourceLocation.GenerateRandom(random)));
         }
         for (int i = 0; i < 50; i++)

@@ -9,28 +9,29 @@ namespace ABCNet
 	/// </summary>
 	public class Colony
 	{
-		//public double AverageFitness { get; set; }
-
-		//public int Dimensions { get; set; } = 2;
-
 		public List<Bee> Bees { get; } = new List<Bee>();
-
 		public int MaxVisits { get; set; } = 50;
-
-		public int MaxCycles { get; set; } = 10000;
-
+		public Random Rand { get; set; } = new Random(Guid.NewGuid().GetHashCode());
 		private int scoutCount = 0;
 		private int employedCount = 0;
 		private int onlookerCount = 0;
 		private List<FoodSource> foodSources;
+		private Queue<FoodSource> newFoodSourceQueue;
+		private readonly object newFoodSourceQueueLock = new object();
+		private readonly object objFoodSource = new object();
 		private Fitness.Get fitnessGetFunction;
 
-		public Random Rand { get; set; } = new Random(Guid.NewGuid().GetHashCode());
-
+		/// <summary>
+		/// Initialize the colony and the bee memories
+		/// </summary>
+		/// <param name="size"></param>
+		/// <param name="foodSources"></param>
+		/// <param name="fitnessGetFunction"></param>
 		public Colony(int size, List<FoodSource> foodSources, Fitness.Get fitnessGetFunction)
 		{
 			this.foodSources = foodSources;
 			this.fitnessGetFunction = fitnessGetFunction;
+			this.newFoodSourceQueue = new Queue<FoodSource>();
 			//Initialization
 			//Generate our bee counts and supply a random memory set for each bee.
 			scoutCount = (int)(.15 * size);
@@ -53,6 +54,20 @@ namespace ABCNet
 			}
 		}
 
+		public void AddFoodSource(FoodSource foodSource) {
+			//stuff this into a queue to inspire the scouts to check it. 
+			lock (newFoodSourceQueueLock) {
+				newFoodSourceQueue.Enqueue(foodSource);
+			}
+		}
+
+		public void RemoveFoodSource(FoodSource foodSource) {
+			lock (objFoodSource) {
+				foodSources.Remove(foodSource);
+				Bees.ForEach(x => x.RandomSolution = GetUniqueRandoms(Rand, 0, foodSources.Count));
+			}
+		}
+
 		/// <summary>
 		/// Performs the colony search for the optimal food source.
 		/// </summary>
@@ -63,8 +78,10 @@ namespace ABCNet
 			List<FoodSource> onlookerBeeSelection = new List<FoodSource>();
 			//Send Employeed Bees
 			Bees.Where(x => x.Status == Bee.StatusType.EMPLOYED).ToList().ForEach(bee => {
-				var primaryFoodSource = foodSources[bee.RandomSolution[0]];
-				PerformBeePrimaryAndNeighborFitness(primaryFoodSource, bee, employedBeeSelection);
+				lock (objFoodSource) {
+					PerformBeePrimaryAndNeighborFitness(foodSources[bee.RandomSolution[0]], 
+						bee, employedBeeSelection);
+				}
 			});
 			employedBeeSelection.Sort(new FoodSourceComparer());
 			int topValue = (int)(employedBeeSelection.Count * .3d); //top 30% dances win for health.
@@ -72,23 +89,43 @@ namespace ABCNet
 			//and then goes to that source. After choosing a neighbour around that, she evaluates its nectar amount.
 			Bees.Where(x => x.Status == Bee.StatusType.ONLOOKER).ToList().ForEach(bee => {
 				int nextTest = Rand.Next(0, topValue);
-				var primaryFoodSource = employedBeeSelection[nextTest];
-				PerformBeePrimaryAndNeighborFitness(primaryFoodSource, bee, onlookerBeeSelection);
+				lock (objFoodSource) {
+					var primaryFoodSource = employedBeeSelection[nextTest];
+					PerformBeePrimaryAndNeighborFitness(primaryFoodSource, bee, onlookerBeeSelection);
+				}
 			});
 
-			//Abandoned food sources are determined and are replaced with the new food sources discovered by scouts.
-			foodSources.Sort(new FoodSourceComparer());
-			//Reset the foodsources where the trial count has gone > MaxVisits.
-			foodSources.Where(x => x.TrialsCount > MaxVisits).ToList().ForEach(x => { 
-				x.TrialsCount = 0; 
-				x.IsAbandoned = false; 
-			});
+			lock (objFoodSource) {
+				//Abandoned food sources are determined and are replaced with the 
+				//new food sources discovered by scouts.
+				foodSources.Sort(new FoodSourceComparer());
 
-			//have the scouts attempt a query against any new sites to seed them into the future state.
-			Bees.Where(x => x.Status == Bee.StatusType.SCOUT).ToList().ForEach(bee =>
-			{
+				//Reset the foodsources where the trial count has gone > MaxVisits.
+				foodSources.Where(x => x.TrialsCount > MaxVisits).ToList().ForEach(x => { 
+					x.TrialsCount = 0;
+					x.IsAbandoned = false;
+				});
 
-			});
+				//Load resources for scouts to identify.
+				List<FoodSource> scoutFoodOptions = foodSources.Where(x => x.IsAbandoned).ToList();
+				if (scoutFoodOptions == null) scoutFoodOptions = new List<FoodSource>();
+				
+				lock (newFoodSourceQueueLock) {
+					while (newFoodSourceQueue.Count() > 0) {
+						var fs = newFoodSourceQueue.Dequeue();
+						scoutFoodOptions.Add(fs);
+						foodSources.Add(fs);
+					}
+				}
+
+				//scouts -> explore IsAbandoned.  Clear the queue of new items.
+				//have the scouts attempt a query against any new sites to seed them into the future state.
+				Bees.Where(x => x.Status == Bee.StatusType.SCOUT).ToList().ForEach(bee =>
+				{
+					bee.RandomSolution.Clear();
+					//TODO: integrate the scoutFoodOptions here.
+				});
+			} //end lock
 
 			return foodSources;
 		}

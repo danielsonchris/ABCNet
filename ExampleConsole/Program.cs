@@ -17,7 +17,7 @@ namespace ExampleConsole
         static void Main(string[] args)
         {
             List<FoodSource> foodSources = new List<FoodSource>();
-            for (int i=0; i < 10; i++) {
+            for (int i = 0; i < 10; i++) {
 				foodSources.Add(new FoodSource(FoodSourceLocation.GenerateRandom(random)));
             }
 			for (int i = 0; i < 50; i++)

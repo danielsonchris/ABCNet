@@ -54,6 +54,10 @@ namespace ABCNet
 			}
 		}
 
+		/// <summary>
+		/// Add a food source into the scout food source queue.  Thread safe.
+		/// </summary>
+		/// <param name="foodSource"></param>
 		public void AddFoodSource(FoodSource foodSource) {
 			//stuff this into a queue to inspire the scouts to check it. 
 			lock (newFoodSourceQueueLock) {
@@ -61,6 +65,10 @@ namespace ABCNet
 			}
 		}
 
+		/// <summary>
+		/// Remove a food source from the food source list.  Thread safe.
+		/// </summary>
+		/// <param name="foodSource"></param>
 		public void RemoveFoodSource(FoodSource foodSource) {
 			lock (objFoodSource) {
 				foodSources.Remove(foodSource);
@@ -69,7 +77,7 @@ namespace ABCNet
 		}
 
 		/// <summary>
-		/// Performs the colony search for the optimal food source.
+		/// Performs the colony search for the optimal food source.  Thread safe.
 		/// </summary>
 		/// <returns>A List of FoodSources that have been sorted by the fittest at the top.</returns>
 		public List<FoodSource> Run()
@@ -114,22 +122,32 @@ namespace ABCNet
 					while (newFoodSourceQueue.Count() > 0) {
 						var fs = newFoodSourceQueue.Dequeue();
 						scoutFoodOptions.Add(fs);
-						foodSources.Add(fs);
+						lock (objFoodSource) foodSources.Add(fs);
 					}
 				}
 
-				//scouts -> explore IsAbandoned.  Clear the queue of new items.
-				//have the scouts attempt a query against any new sites to seed them into the future state.
-				Bees.Where(x => x.Status == Bee.StatusType.SCOUT).ToList().ForEach(bee =>
+				if (scoutFoodOptions.Count > 0)
 				{
-					bee.RandomSolution.Clear();
-					//TODO: integrate the scoutFoodOptions here.
-				});
+					//scouts -> explore IsAbandoned.  Clear the queue of new items.
+					//have the scouts attempt a query against any new sites to seed them into the future state.
+					Bees.Where(x => x.Status == Bee.StatusType.SCOUT).ToList().ForEach(bee =>
+					{
+						int randEntry = Rand.Next(scoutFoodOptions.Count - 1);
+						PerformBeePrimaryAndNeighborFitness(scoutFoodOptions[randEntry], bee, foodSources);
+						scoutFoodOptions.Remove(scoutFoodOptions[randEntry]);
+					});
+				}
 			} //end lock
 
 			return foodSources;
 		}
 
+		/// <summary>
+		/// Performs the bee primary and neighbor fitness.  (NOT Thread safe)
+		/// </summary>
+		/// <param name="primaryFoodSource">Primary food source.</param>
+		/// <param name="bee">Bee.</param>
+		/// <param name="foodSourceSelection">Food source selection.</param>
 		private void PerformBeePrimaryAndNeighborFitness(FoodSource primaryFoodSource, 
 		                                                 Bee bee, List<FoodSource> foodSourceSelection) {
 			var primaryFoodSourceCoordinate = primaryFoodSource.Location.GeoCoordinate;
@@ -158,16 +176,6 @@ namespace ABCNet
 				foodSourceSelection.Add(neighbor);
 			}
 		}
-
-			/*
-Initial food sources are produced for all employed bees
-REPEAT
-Each employed bee goes to a food source in her memory and determines a neighbour source, then evaluates its nectar amount and dances in the hive
-Each onlooker watches the dance of employed bees and chooses one of their sources depending on the dances, and then goes to that source. After choosing a neighbour around that, she evaluates its nectar amount.
-Abandoned food sources are determined and are replaced with the new food sources discovered by scouts.
-The best food source found so far is registered.
-UNTIL (requirements are met)
- */
 		
 		/// <summary>
 		/// Used for generating a unique list of integer values starting at `start` value.

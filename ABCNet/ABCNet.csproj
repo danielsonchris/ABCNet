@@ -6,6 +6,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.4</TargetFramework>
     <ReleaseVersion>1.0</ReleaseVersion>
+    <PackageVersion>1.0.1</PackageVersion>
+    <Description>An extensible Artificial Bee Colony .Net Library.  https://github.com/danielsonchris/ABCNet</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">

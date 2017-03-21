@@ -43,8 +43,8 @@ namespace ABCNet
 
     public class FoodSourceComparer : IComparer<FoodSource> {
         public int Compare(FoodSource x, FoodSource y) {
-            if (x.FitnessValue < y.FitnessValue) return -1; //y is greater
-            else if (x.FitnessValue > y.FitnessValue) return 1; //x is greater
+            if (x.FitnessValue < y.FitnessValue) return 1; //y is greater
+            else if (x.FitnessValue > y.FitnessValue) return -1; //x is greater
             else return 0; //equal
         }
     }

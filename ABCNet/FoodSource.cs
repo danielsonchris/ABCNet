@@ -8,6 +8,12 @@ namespace ABCNet
     {
         public GeoCoordinate GeoCoordinate { get; set; }
 
+        public static FoodSourceLocation GenerateWithValues(double latitude, double longitude) {
+            var fs = new FoodSourceLocation();
+            fs.GeoCoordinate = new GeoCoordinate(latitude, longitude);
+            return fs;
+        }
+
         public static FoodSourceLocation GenerateRandom(Random rand) {
             var fs = new FoodSourceLocation();
             int lat = rand.Next(516400146, 630304598);
